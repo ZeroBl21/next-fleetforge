@@ -1,34 +1,40 @@
-import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
+"use client"
+
+import { useSearchParams, useRouter } from 'next/navigation'
+
+import { MapContainer, Marker, Polyline, Popup, TileLayer, useMapEvents } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 
-import { useEffect } from 'react'
+import { Skeleton } from "@/components/ui/skeleton"
 
-const BODY = { coordinates: [[-68.712, 18.613], [-70.695, 19.451]] }
-// const BODY = { coordinates: [[18.4936, -69.8384], [19.4498, -70.6966]] }
-const URL = "https://api.openrouteservice.org/v2/directions/driving-car"
-
-async function test() {
-  const response = await fetch(URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
-      'Authorization': '5b3ce3597851110001cf6248401c42f5e54c4d6fa2a4bb3c6c71c310'
+const LocationFinderDummy = ({ newParams }: any) => {
+  useMapEvents({
+    click(e) {
+      console.log(e.latlng);
+      newParams('org', e)
     },
-    body: JSON.stringify(BODY)
-  })
+    contextmenu(e) {
+      console.log(e.latlng)
+      newParams('des', e)
+    }
+  });
 
-  const json = await response.json()
-  console.log(json)
-}
+  return null;
+};
 
-const Map = () => {
-  useEffect(() => {
-    test()
-  }, [])
+const Map = ({ route }: any) => {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  function newParams(param: string, e: any) {
+    const newParams = new URLSearchParams(searchParams.toString())
+
+    newParams.set(param, `${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}`)
+    router.push('/map?' + newParams.toString())
+  }
 
   return (
-    <MapContainer center={[19.4506, -70.6950]} zoom={13} scrollWheelZoom={false} style={{ height: "60vh", width: "50%" }}>
+    <MapContainer className="relative h-[60dvh] sm:w-1/2" center={[19.4506, -70.6950]} zoom={13} scrollWheelZoom={false} placeholder={<Skeleton className="relative h-[60dvh] w-1/2" />}>
       <TileLayer
         attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -38,6 +44,8 @@ const Map = () => {
           A pretty CSS3 popup. <br /> Easily customizable.
         </Popup>
       </Marker>
+      {route?.decodedRoute && <Polyline positions={route.decodedRoute} color="blue" attribution={route.metadata.attribution} />}
+      <LocationFinderDummy newParams={newParams} />
     </MapContainer>
   )
 }

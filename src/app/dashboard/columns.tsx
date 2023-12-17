@@ -1,27 +1,55 @@
-"use client"
+"use client";
 
-import { ColumnDef } from "@tanstack/react-table"
+import { ColumnDef } from "@tanstack/react-table";
 
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
-export type Payment = {
-  id: string
-  amount: number
-  status: "pending" | "processing" | "success" | "failed"
-  email: string
-}
+export type Vehicle = {
+  id: number;
+  vehicle_type: string;
+  category: string;
+  brand: string;
+  max_load_capacity: number;
+  model: string;
+  fuel_efficiency: number;
+  fuel_cost: number;
+  efficiency_type: string;
+};
 
-export const columns: ColumnDef<Payment>[] = [
+// Column definitions
+export const columns: ColumnDef<Vehicle>[] = [
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: "id",
+    header: "ID",
   },
   {
-    accessorKey: "email",
-    header: "Email",
+    accessorKey: "model",
+    header: "Model",
   },
   {
-    accessorKey: "amount",
-    header: "Amount",
+    accessorKey: "max_load_capacity",
+    header: "Max Load Capacity",
   },
-]
+  {
+    accessorKey: "vehicle_type",
+    header: "Vehicle Type",
+  },
+  {
+    accessorKey: "category",
+    header: "Vehicle Category",
+  },
+  {
+    accessorKey: "brand",
+    header: "Vehicle Brand",
+  },
+  {
+    accessorKey: "fuel_efficiency",
+    header: "Fuel Efficiency",
+  },
+  {
+    accessorKey: "fuel_cost",
+    header: "Fuel Cost",
+  },
+  {
+    accessorKey: "efficiency_type", // Added efficiency_type column
+    header: "Efficiency Type",
+  },
+];

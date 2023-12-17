@@ -1,13 +1,15 @@
 import type { Metadata } from 'next'
 import { Inter as FontSans } from "next/font/google"
 
+import { Toaster } from "@/components/ui/toaster"
+
 import { ThemeProvider } from "@/components/theme-provider"
 import Navbar from "@/components/navbar"
 import { cn } from '@/lib/utils'
 
 import './globals.css'
 
-export const fontSans = FontSans({
+const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
 })
@@ -24,24 +26,18 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="dark"
-        enableSystem
-        disableTransitionOnChange
+      <body
+        className={cn(
+          "min-h-screen bg-background font-sans antialiased",
+          fontSans.variable
+        )}
       >
-        <body
-          className={cn(
-            "min-h-screen bg-background font-sans antialiased",
-            fontSans.variable
-          )}
-        >
-          <Navbar />
-          <main className='pt-24'>
+        <Navbar />
+        <main className='pt-24 max-w-screen-xl 2xl:mx-auto'>
           {children}
-          </main>
-        </body>
-      </ThemeProvider>
+        </main>
+        <Toaster />
+      </body>
     </html>
   )
 }
