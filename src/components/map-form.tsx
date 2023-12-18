@@ -40,7 +40,7 @@ const formSchema = z.object({
   }, {
     message: "Destiny must be two comma-separated floats with an optional space."
   }),
-  vehicle_type: z.enum(["", "gas", "gasoline", "electric"]),
+  vehicle_type: z.enum(["", "gas", "gasoline", "electric", "all"]),
   preference: z.enum(["", "recommended", "fastest", "shortest"]),
   avoid: z.enum(["", "city", "highways"])
 })
@@ -65,12 +65,11 @@ export default function MapForm() {
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
     router.push('/map?' +
       //@ts-ignore
       new URLSearchParams({
-        org: values.origin,
-        des: values.destiny,
+        org: searchParams?.get('org') || '',
+        des: searchParams?.get('des') || '',
         pref: values.preference,
         w: values.weight,
         avo: values.avoid,
@@ -103,7 +102,9 @@ export default function MapForm() {
             control={form.control}
             name="preference"
             render={({ field }) => (
-              <Select name={field.name}
+              <Select
+                name={field.name}
+                value={field.value ? field.value : ''}
                 onValueChange={(value) => field.onChange({ target: { name: field.name, value } })}
                 required
               >
@@ -123,7 +124,9 @@ export default function MapForm() {
             control={form.control}
             name="avoid"
             render={({ field }) => (
-              <Select name={field.name}
+              <Select
+                name={field.name}
+                value={field.value ? field.value : ''}
                 onValueChange={(value) => field.onChange({ target: { name: field.name, value } })}
                 required
               >
@@ -140,7 +143,6 @@ export default function MapForm() {
         </div>
 
         <div className='flex gap-1 [&>*]:flex-1'>
-
           <FormField
             control={form.control}
             name="origin"
@@ -148,7 +150,7 @@ export default function MapForm() {
               <FormItem>
                 <FormLabel>Origen</FormLabel>
                 <FormControl>
-                  <Input placeholder="Santiago" {...field} defaultValue={searchParams?.get('org') || ''} />
+                  <Input placeholder="Santiago" {...field} />
                 </FormControl>
                 <FormDescription>
                   El Punto de origen del viaje
@@ -164,7 +166,7 @@ export default function MapForm() {
               <FormItem>
                 <FormLabel>Destino</FormLabel>
                 <FormControl>
-                  <Input placeholder="Santo Domingo" {...field} defaultValue={searchParams?.get('des') || ''} />
+                  <Input placeholder="Santo Domingo" {...field} />
                 </FormControl>
                 <FormDescription>
                   El Punto destino del viaje
@@ -181,6 +183,7 @@ export default function MapForm() {
           render={({ field }) => (
             <Select
               name={field.name}
+              value={field.value ? field.value : ''}
               onValueChange={(value) => field.onChange({ target: { name: field.name, value } })}
               required
             >

@@ -4,13 +4,27 @@ import { decode } from "@googlemaps/polyline-codec";
 
 import { Skeleton } from "@/components/ui/skeleton"
 import MapForm from "@/components/map-form"
-import { DataTable } from '../dashboard/data-table'
-import { Vehicle, columns } from '../dashboard/columns'
+
+import { DataTable } from './data-table'
+import { Vehicle, columns } from './columns'
 
 import pool from '@/db/db'
 
 const URL: string = process.env.MAPS_API_URL!
 const API_KEY: string = process.env.MAPS_API_KEY!
+
+const locationSchema = z.object({
+  origin: z.string().refine(data => {
+    const regex = /^-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?$/;
+    return regex.test(data);
+  }, {
+    message: "Origin must be two comma-separated floats with an optional space."
+  }),
+  destiny: z.string().refine(data => {
+    const regex = /^-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?$/;
+    return regex.test(data);
+  }),
+});
 
 type Opts = {
   coordinates: [number, number][];
@@ -23,6 +37,12 @@ type Opts = {
 };
 
 async function getRoute({ org, des, ...rest }: any) {
+  const result = locationSchema.safeParse({ origin: org, destiny: des })
+  if (!result.success) {
+    console.error("invalid points")
+    return
+  }
+
   try {
     const [orgLat, orgLng] = org.split(',').map(parseFloat);
     const [desLat, desLng] = des.split(',').map(parseFloat);
@@ -31,7 +51,7 @@ async function getRoute({ org, des, ...rest }: any) {
     if (rest.pref) {
       opts.preference = rest.pref;
     }
-    if (rest.avo === 'highways') {
+    if (rest.avo !== 'highways') {
       opts.options = opts.options || {};
       opts.options.avoid_features = ["highways"];
     }
@@ -54,6 +74,8 @@ async function getRoute({ org, des, ...rest }: any) {
     json.decodedRoute = decodedRoute
     json.summary = json.routes[0].summary
     json.summary.road = rest.avo === "highways" ? "highways" : "average"
+    json.origin = [json.metadata.query.coordinates[0][1], json.metadata.query.coordinates[0][0]]
+    json.destiny = [json.metadata.query.coordinates[1][1], json.metadata.query.coordinates[1][0]]
 
     return json
   } catch (e: any) {
@@ -66,7 +88,7 @@ const vehicleFuelCostSchema = z.object({
   weight: z.coerce.number().min(0),
   distance: z.coerce.number(),
   roadType: z.string(),
-  vehicleType: z.enum(["electric", "gas", "gasoline"]),
+  vehicleType: z.enum(["all", "electric", "gas", "gasoline"]),
 });
 
 async function getVehiclesWithFuelCost(params: z.infer<typeof vehicleFuelCostSchema>) {
@@ -94,8 +116,16 @@ async function getVehiclesWithFuelCost(params: z.infer<typeof vehicleFuelCostSch
       JOIN fuel_efficiency fe ON ve.efficiency_id = fe.id
       WHERE v.max_load_capacity >= $1
         AND fe.name = $2
-        AND vt.name = $3;
+        AND ($3 = 'all' OR vt.name = $3);
     `, [weight, roadType, vehicleType]);
+
+    const fuelPriceQuery = await pool.query(`
+      SELECT price
+      FROM fuel_price
+      WHERE fuel_type = 'Gasolina Premium'
+      ORDER BY validity_date DESC
+      LIMIT 1
+    `);
 
     // Step 2: Reduce the MPG based on efficiency adjustment for the road type
     const vehicles = await Promise.all(vehicleQuery.rows.map(async vehicle => {
@@ -113,17 +143,6 @@ async function getVehiclesWithFuelCost(params: z.infer<typeof vehicleFuelCostSch
       // If there is a matching weight range, apply the adjustment
       const efficiencyAdjustment = weightRangeQuery.rows[0]?.efficiency_adjustment || 0;
       const adjustedEfficiency = originalEfficiency * (1 - efficiencyAdjustment / 100);
-      console.log(originalEfficiency, adjustedEfficiency)
-
-
-      // Step 4: Search for the most recent "Gasolina Premium" price
-      const fuelPriceQuery = await pool.query(`
-        SELECT price
-        FROM fuel_price
-        WHERE fuel_type = 'Gasolina Premium'
-        ORDER BY validity_date DESC
-        LIMIT 1
-      `);
 
       // Calculate fuel cost
       const fuelCost = (distance / adjustedEfficiency) * fuelPriceQuery.rows[0]?.price || 0;

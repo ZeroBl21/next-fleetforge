@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "deno run ./db/seed.js"
+    "seed": "deno run ./src/db/seed.js"
   },
   "dependencies": {
     "@googlemaps/polyline-codec": "^1.0.28",
@@ -39,7 +39,6 @@
     "react-day-picker": "^8.9.1",
     "react-dom": "^18",
     "react-hook-form": "^7.49.0",
-    "react-icons": "^4.12.0",
     "react-leaflet": "^4.2.1",
     "recharts": "^2.10.3",
     "tailwind-merge": "^2.1.0",

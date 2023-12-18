@@ -10,11 +10,11 @@ import { Skeleton } from "@/components/ui/skeleton"
 const LocationFinderDummy = ({ newParams }: any) => {
   useMapEvents({
     click(e) {
-      console.log(e.latlng);
+      // console.log(e.latlng);
       newParams('org', e)
     },
     contextmenu(e) {
-      console.log(e.latlng)
+      // console.log(e.latlng)
       newParams('des', e)
     }
   });
@@ -39,12 +39,21 @@ const Map = ({ route }: any) => {
         attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <Marker position={[19.4506, -70.6950]}>
-        <Popup>
-          A pretty CSS3 popup. <br /> Easily customizable.
-        </Popup>
-      </Marker>
       {route?.decodedRoute && <Polyline positions={route.decodedRoute} color="blue" attribution={route.metadata.attribution} />}
+      {route?.origin && (
+        <Marker position={route.origin}>
+          <Popup>
+            Origin
+          </Popup>
+        </Marker>
+      )}
+      {route?.destiny && (
+        <Marker position={route.destiny}>
+          <Popup>
+            Destiny
+          </Popup>
+        </Marker>
+      )}
       <LocationFinderDummy newParams={newParams} />
     </MapContainer>
   )

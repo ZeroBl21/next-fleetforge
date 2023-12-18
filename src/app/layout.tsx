@@ -32,10 +32,17 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
-        <Navbar />
-        <main className='pt-24 max-w-screen-xl 2xl:mx-auto'>
-          {children}
-        </main>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Navbar />
+          <main className='pt-24 max-w-screen-xl 2xl:mx-auto'>
+            {children}
+          </main>
+        </ThemeProvider>
         <Toaster />
       </body>
     </html>
