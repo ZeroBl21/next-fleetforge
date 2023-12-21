@@ -11,7 +11,6 @@ export async function Statistics() {
   const expenses = await getLastMonthTripCostAndDifference()
   const trips = await getCountAndDifference()
   const weight = await getLastTransportedWeightAndDifference()
-  console.log(trips)
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

@@ -10,11 +10,9 @@ import { Skeleton } from "@/components/ui/skeleton"
 const LocationFinderDummy = ({ newParams }: any) => {
   useMapEvents({
     click(e) {
-      // console.log(e.latlng);
       newParams('org', e)
     },
     contextmenu(e) {
-      // console.log(e.latlng)
       newParams('des', e)
     }
   });

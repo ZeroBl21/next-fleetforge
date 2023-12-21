@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { useRouter, useSearchParams } from "next/navigation"
+import { useEffect, useState } from "react"
 
 const formSchema = z.object({
   weight: z.coerce.number().min(0, {
@@ -32,17 +33,18 @@ const formSchema = z.object({
     const regex = /^-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?$/;
     return regex.test(data);
   }, {
-    message: "Origin must be two comma-separated floats with an optional space."
+    message: "Origen debe ser dos números decimales separados por comas, con un espacio opcional."
   }),
   destiny: z.string().refine(data => {
     const regex = /^-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?$/;
     return regex.test(data);
   }, {
-    message: "Destiny must be two comma-separated floats with an optional space."
+    message: "Destino debe ser dos números decimales separados por comas, con un espacio opcional."
   }),
-  vehicle_type: z.enum(["", "gas", "gasoline", "electric", "all"]),
-  preference: z.enum(["", "recommended", "fastest", "shortest"]),
-  avoid: z.enum(["", "city", "highways"])
+  vehicle_type: z.enum(["gas", "gasoline", "electric", "all"]),
+  vehicle_fuel: z.any(),
+  preference: z.enum(["recommended", "fastest", "shortest"]),
+  avoid: z.enum(["city", "highways"])
 })
 
 export default function MapForm() {
@@ -60,9 +62,16 @@ export default function MapForm() {
       //@ts-ignore
       avoid: searchParams?.get('avo') || '',
       //@ts-ignore
-      vehicle_type: searchParams?.get('vt') || ''
+      vehicle_type: searchParams?.get('vt') || '',
+      vehicle_fuel: searchParams?.get('ft') || ''
     },
   })
+
+  useEffect(() => {
+    form.setValue('origin', searchParams?.get('org') || '')
+    form.setValue('destiny', searchParams?.get('des') || '')
+  }, [form, searchParams])
+
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     router.push('/map?' +
@@ -73,7 +82,8 @@ export default function MapForm() {
         pref: values.preference,
         w: values.weight,
         avo: values.avoid,
-        vt: values.vehicle_type
+        vt: values.vehicle_type,
+        ft: values.vehicle_fuel
       }).toString()
     )
   }
@@ -177,9 +187,57 @@ export default function MapForm() {
           />
         </div>
 
+        <FuelSelect form={form} vt={searchParams?.get('vt') || null} />
+
+        <Button type="submit">Submit</Button>
+      </form>
+    </Form>
+  )
+}
+
+function FuelSelect({ form, vt = null }: any) {
+  const fuelOptionsMap: { [key: string]: string[] } = {
+    all: ["Gasolina Premium", "Gasolina Regular", "Gasoil Optimo", "Gasoil Regular", "Kerosene", "Gas Licuado (GLP)", "Gas Natural (GNV)", "Electricidad"],
+    gasoline: ["Gasolina Premium", "Gasolina Regular", "Gasoil Optimo", "Gasoil Regular", "Kerosene"],
+    gas: ["Gas Licuado (GLP)", "Gas Natural (GNV)"],
+    electric: ["Electricidad"], // Opciones específicas para "Electrico"
+  };
+
+  const [selectedFuelType, setSelectedFuelType] = useState<string | null>(vt);
+
+  return (
+    <div className="flex gap-1">
+      <FormField
+        control={form.control}
+        name="vehicle_type"
+        render={({ field }) => (
+          <Select
+            name={field.name}
+            value={field.value ? field.value : ''}
+            onValueChange={(value) => {
+              field.onChange({ target: { name: field.name, value } })
+              setSelectedFuelType(value)
+            }}
+            required
+          >
+            <SelectTrigger ref={field.ref}>
+              <SelectValue placeholder="Tipo de Vehiculo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              <SelectItem value="gasoline">Gasolina</SelectItem>
+              <SelectItem value="gas">Gas</SelectItem>
+              <SelectItem value="electric">Electrico</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+      />
+
+
+      {selectedFuelType && (
         <FormField
           control={form.control}
-          name="vehicle_type"
+          name="vehicle_fuel"
           render={({ field }) => (
             <Select
               name={field.name}
@@ -188,20 +246,19 @@ export default function MapForm() {
               required
             >
               <SelectTrigger ref={field.ref}>
-                <SelectValue placeholder="Tipo de Vehiculo" />
+                <SelectValue placeholder="Combustible" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="gasoline">Gasolina</SelectItem>
-                <SelectItem value="gas">Gas</SelectItem>
-                <SelectItem value="electric">Electrico</SelectItem>
+                {fuelOptionsMap[selectedFuelType].map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           )}
         />
-
-        <Button type="submit">Submit</Button>
-      </form>
-    </Form>
-  )
+      )}
+    </div>
+  );
 }

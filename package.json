@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "deno run ./src/db/seed.js"
+    "seed": "node --env-file=config.env ./src/db/seed.mjs"
   },
   "dependencies": {
     "@googlemaps/polyline-codec": "^1.0.28",

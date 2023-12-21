@@ -1,5 +1,7 @@
-import { z } from 'zod';
+import { Metadata } from 'next/types';
 import dynamic from 'next/dynamic'
+
+import { z } from 'zod';
 import { decode } from "@googlemaps/polyline-codec";
 
 import { Skeleton } from "@/components/ui/skeleton"
@@ -10,8 +12,66 @@ import { Vehicle, columns } from './columns'
 
 import pool from '@/db/db'
 
+export const metadata: Metadata = {
+  title: "Map",
+  description: "Esta es la pantalla de gestion de flota principal",
+}
+
+async function Page({ searchParams }: any) {
+  let route
+  let data: Vehicle[] = []
+
+  const Map = dynamic(
+    () => import('@/components/map'), // replace '@components/map' with your component's location
+    {
+      loading: () => <Skeleton className="relative h-[60dvh] w-1/2" />,
+      ssr: false,
+    } // This line is important. It's what prevents server-side render
+  )
+
+  if (searchParams.org && searchParams.des) {
+    route = await getRoute(searchParams).catch(e => e);
+
+    if (route && searchParams.w && searchParams.vt && route?.summary) {
+      const temp = await getWeather({ lat: route?.origin[0], lng: route.origin[1] })
+      //@ts-ignore
+      data = await getVehiclesWithFuelCost(
+        {
+          weight: searchParams.w,
+          distance: route?.summary.distance,
+          roadType: route.summary.road,
+          vehicleType: searchParams.vt,
+          fuelType: searchParams.ft,
+          temperature: temp || 32
+        }
+      )
+  }
+}
+
+return (
+  <div>
+    <section className='flex gap-2 flex-col sm:flex-row'>
+      <div className='sm:w-1/2'>
+        <MapForm />
+      </div>
+      <Map route={route} />
+    </section>
+
+    <div className="mx-auto py-10">
+      <DataTable columns={columns} data={data} />
+    </div>
+  </div>
+);
+};
+
+export default Page;
+
 const URL: string = process.env.MAPS_API_URL!
 const API_KEY: string = process.env.MAPS_API_KEY!
+// const WEATHER_API: string = process.env.WEATHER_API_URL!
+
+const WEATHER_API: string =
+  "https://api.open-meteo.com/v1/forecast?current=temperature_2m,apparent_temperature&forecast_days=1"
 
 const locationSchema = z.object({
   origin: z.string().refine(data => {
@@ -35,6 +95,33 @@ type Opts = {
   };
   preference?: string;
 };
+
+async function getWeather({ lat, lng }: any) {
+  try {
+    const URL = WEATHER_API + '&' + new URLSearchParams({
+      latitude: lat,
+      longitude: lng
+    }).toString()
+
+    const response = await fetch(URL, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+      },
+    })
+    if (!response.ok) {
+      console.error(response.statusText)
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const json = await response.json()
+
+    return Math.floor(json?.current?.temperature_2m) || 32
+  } catch (e: any) {
+    console.error('Error during fetch:', e.message);
+    return 32
+  }
+}
 
 async function getRoute({ org, des, ...rest }: any) {
   const result = locationSchema.safeParse({ origin: org, destiny: des })
@@ -89,6 +176,8 @@ const vehicleFuelCostSchema = z.object({
   distance: z.coerce.number(),
   roadType: z.string(),
   vehicleType: z.enum(["all", "electric", "gas", "gasoline"]),
+  fuelType: z.string(),
+  temperature: z.number(),
 });
 
 async function getVehiclesWithFuelCost(params: z.infer<typeof vehicleFuelCostSchema>) {
@@ -96,9 +185,9 @@ async function getVehiclesWithFuelCost(params: z.infer<typeof vehicleFuelCostSch
     const result = vehicleFuelCostSchema.safeParse(params)
     if (!result.success) return;
 
-    const { weight, distance, roadType, vehicleType } = result.data
+    let { weight, distance, roadType, vehicleType, fuelType, temperature } = result.data
 
-    // Step 1: Search for vehicles in the database
+    //Search for vehicles in the database
     const vehicleQuery = await pool.query(`
       SELECT
         v.id,
@@ -122,26 +211,35 @@ async function getVehiclesWithFuelCost(params: z.infer<typeof vehicleFuelCostSch
     const fuelPriceQuery = await pool.query(`
       SELECT price
       FROM fuel_price
-      WHERE fuel_type = 'Gasolina Premium'
+      WHERE fuel_type = $1
       ORDER BY validity_date DESC
       LIMIT 1
-    `);
+    `, [fuelType]);
 
-    // Step 2: Reduce the MPG based on efficiency adjustment for the road type
+    // Check if the weight falls within any weight range
+    const weightRangeQuery = await pool.query(`
+      SELECT efficiency_adjustment
+      FROM weight_range
+      WHERE min_weight <= $1 AND max_weight >= $1
+    `, [weight]);
+    const weightAdjustment = +weightRangeQuery.rows[0]?.efficiency_adjustment || 0;
+
+    const temperatureRangeQuery = await pool.query(`
+      SELECT efficiency_adjustment
+      FROM temperature_range
+      WHERE min_temperature <= $1 AND max_temperature >= $1
+    `, [temperature]);
+    const temperatureAdjustment = +temperatureRangeQuery.rows[0]?.efficiency_adjustment || 0;
+
+    const efficiencyAdjustment = weightAdjustment + temperatureAdjustment
+
+    // Reduce the MPG based on efficiency adjustment for the road type
     const vehicles = await Promise.all(vehicleQuery.rows.map(async vehicle => {
 
       // Get the original efficiency value from the database
       const originalEfficiency = vehicle.fuel_efficiency;
 
-      // Step 3: Check if the weight falls within any weight range
-      const weightRangeQuery = await pool.query(`
-        SELECT efficiency_adjustment
-        FROM weight_range
-        WHERE min_weight <= $1 AND max_weight >= $1
-      `, [weight]);
-
       // If there is a matching weight range, apply the adjustment
-      const efficiencyAdjustment = weightRangeQuery.rows[0]?.efficiency_adjustment || 0;
       const adjustedEfficiency = originalEfficiency * (1 - efficiencyAdjustment / 100);
 
       // Calculate fuel cost
@@ -168,50 +266,4 @@ async function getVehiclesWithFuelCost(params: z.infer<typeof vehicleFuelCostSch
     // Handle connection management if needed
   }
 }
-
-async function Page({ searchParams }: any) {
-  let route
-  let data: Vehicle[] = []
-
-  const Map = dynamic(
-    () => import('@/components/map'), // replace '@components/map' with your component's location
-    {
-      loading: () => <Skeleton className="relative h-[60dvh] w-1/2" />,
-      ssr: false,
-    } // This line is important. It's what prevents server-side render
-  )
-
-  if (searchParams.org && searchParams.des) {
-    route = await getRoute(searchParams).catch(e => e);
-  }
-
-  if (searchParams.w && searchParams.vt && route?.summary) {
-    //@ts-ignore
-    data = await getVehiclesWithFuelCost(
-      {
-        weight: searchParams.w,
-        distance: route?.summary.distance,
-        roadType: route.summary.road,
-        vehicleType: searchParams.vt
-      }
-    )
-  }
-
-  return (
-    <div>
-      <section className='flex gap-2 flex-col sm:flex-row'>
-        <div className='sm:w-1/2'>
-          <MapForm />
-        </div>
-        <Map route={route} />
-      </section>
-
-      <div className="mx-auto py-10">
-        <DataTable columns={columns} data={data} />
-      </div>
-    </div>
-  );
-};
-
-export default Page;
 
