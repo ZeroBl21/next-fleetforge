@@ -3,7 +3,7 @@
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
 
 export function Overview({ data }: any) {
-  const maxY = data.length > 0 ? Math.max(...data.map((item: { total: any; }) => item.total)) : 0;
+  const maxY = data?.length > 0 ? Math.max(...data.map((item: { total: any; }) => item.total)) : 0;
 
   return (
     <ResponsiveContainer width="100%" height={450}>
