@@ -279,8 +279,8 @@ for (let vehicleId = 1; vehicleId <= 25; vehicleId++) {
 const tripData = [
   {
     id: 1,
-    departure_date: '2023-12-17 10:00:00',
-    arrival_date: '2023-12-17 18:00:00',
+    departure_date: '2024-01-23 10:00:00',
+    arrival_date: '2024-01-23 18:00:00',
     state_id: 3, // in_progress
     approximate_cost: 500.00,
     final_cost: 480.00,
@@ -291,8 +291,8 @@ const tripData = [
   },
   {
     id: 2,
-    departure_date: '2023-12-18 12:00:00',
-    arrival_date: '2023-12-18 20:00:00',
+    departure_date: '2024-02-14 12:00:00',
+    arrival_date: '2024-02-14 20:00:00',
     state_id: 2, // finished
     approximate_cost: 700.00,
     final_cost: 680.00,
@@ -303,8 +303,8 @@ const tripData = [
   },
   {
     id: 3,
-    departure_date: '2023-03-20 14:00:00',
-    arrival_date: '2023-03-20 22:00:00',
+    departure_date: '2024-03-07 14:00:00',
+    arrival_date: '2024-03-07 22:00:00',
     state_id: 4, // canceled
     approximate_cost: 300.00,
     final_cost: 0.00,
@@ -315,8 +315,8 @@ const tripData = [
   },
   {
     id: 4,
-    departure_date: '2023-04-25 08:00:00',
-    arrival_date: '2023-04-25 16:00:00',
+    departure_date: '2024-04-17 08:00:00',
+    arrival_date: '2024-04-17 16:00:00',
     state_id: 1, // scheduled
     approximate_cost: 600.00,
     final_cost: 0.00,
@@ -327,8 +327,8 @@ const tripData = [
   },
   {
     id: 5,
-    departure_date: '2023-05-12 09:00:00',
-    arrival_date: '2023-05-12 17:00:00',
+    departure_date: '2024-05-12 09:00:00',
+    arrival_date: '2024-05-12 17:00:00',
     state_id: 2, // finished
     approximate_cost: 800.00,
     final_cost: 780.00,
@@ -339,8 +339,8 @@ const tripData = [
   },
   {
     id: 6,
-    departure_date: '2023-06-18 11:00:00',
-    arrival_date: '2023-06-18 19:00:00',
+    departure_date: '2024-06-18 11:00:00',
+    arrival_date: '2024-06-18 19:00:00',
     state_id: 3, // in_progress
     approximate_cost: 550.00,
     final_cost: 520.00,
@@ -351,8 +351,8 @@ const tripData = [
   },
   {
     id: 7,
-    departure_date: '2023-07-22 15:00:00',
-    arrival_date: '2023-07-22 23:00:00',
+    departure_date: '2024-07-22 15:00:00',
+    arrival_date: '2024-07-22 23:00:00',
     state_id: 4, // canceled
     approximate_cost: 400.00,
     final_cost: 0.00,
@@ -363,8 +363,8 @@ const tripData = [
   },
   {
     id: 8,
-    departure_date: '2023-08-30 07:00:00',
-    arrival_date: '2023-08-30 15:00:00',
+    departure_date: '2024-08-30 07:00:00',
+    arrival_date: '2024-08-30 15:00:00',
     state_id: 1, // scheduled
     approximate_cost: 650.00,
     final_cost: 0.00,
@@ -375,8 +375,8 @@ const tripData = [
   },
   {
     id: 9,
-    departure_date: '2023-09-14 08:30:00',
-    arrival_date: '2023-09-14 16:30:00',
+    departure_date: '2024-09-14 08:30:00',
+    arrival_date: '2024-09-14 16:30:00',
     state_id: 2, // finished
     approximate_cost: 900.00,
     final_cost: 880.00,
@@ -387,8 +387,8 @@ const tripData = [
   },
   {
     id: 10,
-    departure_date: '2023-10-19 13:45:00',
-    arrival_date: '2023-10-19 21:45:00',
+    departure_date: '2024-10-19 13:45:00',
+    arrival_date: '2024-10-19 21:45:00',
     state_id: 3, // in_progress
     approximate_cost: 600.00,
     final_cost: 580.00,
@@ -399,8 +399,8 @@ const tripData = [
   },
   {
     id: 11,
-    departure_date: '2023-11-25 10:15:00',
-    arrival_date: '2023-11-25 18:15:00',
+    departure_date: '2024-11-25 10:15:00',
+    arrival_date: '2024-11-25 18:15:00',
     state_id: 1, // scheduled
     approximate_cost: 750.00,
     final_cost: 0.00,
@@ -411,8 +411,8 @@ const tripData = [
   },
   {
     id: 12,
-    departure_date: '2023-12-01 16:00:00',
-    arrival_date: '2023-12-01 23:30:00',
+    departure_date: '2024-12-01 16:00:00',
+    arrival_date: '2024-12-01 23:30:00',
     state_id: 2, // finished
     approximate_cost: 700.00,
     final_cost: 680.00,
@@ -423,8 +423,8 @@ const tripData = [
   },
   {
     id: 13,
-    departure_date: '2023-01-15 09:30:00',
-    arrival_date: '2023-01-15 17:30:00',
+    departure_date: '2024-01-15 09:30:00',
+    arrival_date: '2024-01-15 17:30:00',
     state_id: 2, // finished
     approximate_cost: 550.00,
     final_cost: 530.00,
@@ -435,8 +435,8 @@ const tripData = [
   },
   {
     id: 14,
-    departure_date: '2023-02-20 14:00:00',
-    arrival_date: '2023-02-20 22:00:00',
+    departure_date: '2024-02-20 14:00:00',
+    arrival_date: '2024-02-20 22:00:00',
     state_id: 1, // scheduled
     approximate_cost: 600.00,
     final_cost: 0.00,
@@ -447,8 +447,8 @@ const tripData = [
   },
   {
     id: 15,
-    departure_date: '2023-03-10 11:45:00',
-    arrival_date: '2023-03-10 19:45:00',
+    departure_date: '2024-03-10 11:45:00',
+    arrival_date: '2024-03-10 19:45:00',
     state_id: 3, // in_progress
     approximate_cost: 700.00,
     final_cost: 0.00,
@@ -459,8 +459,8 @@ const tripData = [
   },
   {
     id: 16,
-    departure_date: '2023-04-05 18:30:00',
-    arrival_date: '2023-04-05 02:30:00',
+    departure_date: '2024-04-05 18:30:00',
+    arrival_date: '2024-04-05 02:30:00',
     state_id: 2, // finished
     approximate_cost: 800.00,
     final_cost: 780.00,
@@ -471,7 +471,7 @@ const tripData = [
   },
   {
     id: 17,
-    departure_date: '2023-05-12 10:15:00',
+    departure_date: '2024-05-12 10:15:00',
     arrival_date: null,
     state_id: 3, // in_progress
     approximate_cost: 600.00,
@@ -483,7 +483,7 @@ const tripData = [
   },
   {
     id: 18,
-    departure_date: '2023-06-08 14:45:00',
+    departure_date: '2024-06-08 14:45:00',
     arrival_date: null,
     state_id: 3, // in_progress
     approximate_cost: 720.00,
@@ -495,7 +495,7 @@ const tripData = [
   },
   {
     id: 19,
-    departure_date: '2023-07-20 12:30:00',
+    departure_date: '2024-07-20 12:30:00',
     arrival_date: null,
     state_id: 3, // in_progress
     approximate_cost: 850.00,
@@ -507,7 +507,7 @@ const tripData = [
   },
   {
     id: 20,
-    departure_date: '2023-08-15 09:00:00',
+    departure_date: '2024-08-15 09:00:00',
     arrival_date: null,
     state_id: 3, // in_progress
     approximate_cost: 900.00,
