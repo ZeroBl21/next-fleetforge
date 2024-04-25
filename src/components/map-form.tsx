@@ -44,6 +44,7 @@ const formSchema = z.object({
   vehicle_type: z.enum(["gas", "gasoline", "electric", "all"]),
   vehicle_fuel: z.any(),
   preference: z.enum(["recommended", "fastest", "shortest"]),
+  priority: z.enum(["security", "economy", "efficiency"]),
   avoid: z.enum(["city", "highways"])
 })
 
@@ -63,7 +64,9 @@ export default function MapForm() {
       avoid: searchParams?.get('avo') || '',
       //@ts-ignore
       vehicle_type: searchParams?.get('vt') || '',
-      vehicle_fuel: searchParams?.get('ft') || ''
+      vehicle_fuel: searchParams?.get('ft') || '',
+      //@ts-ignore
+      priority: searchParams?.get('pr') || ''
     },
   })
 
@@ -83,7 +86,8 @@ export default function MapForm() {
         w: values.weight,
         avo: values.avoid,
         vt: values.vehicle_type,
-        ft: values.vehicle_fuel
+        ft: values.vehicle_fuel,
+        pr: values.priority
       }).toString()
     )
   }
@@ -91,6 +95,7 @@ export default function MapForm() {
   return (
     <Form {...form} >
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 p-4">
+
         <FormField
           control={form.control}
           name="weight"
@@ -188,6 +193,28 @@ export default function MapForm() {
         </div>
 
         <FuelSelect form={form} vt={searchParams?.get('vt') || null} />
+
+        <FormField
+          control={form.control}
+          name="priority"
+          render={({ field }) => (
+            <Select
+              name={field.name}
+              value={field.value ? field.value : ''}
+              onValueChange={(value) => field.onChange({ target: { name: field.name, value } })}
+              required
+            >
+              <SelectTrigger ref={field.ref}>
+                <SelectValue placeholder="Prioridad de viaje" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="security">Seguridad</SelectItem>
+                <SelectItem value="economy">Economia</SelectItem>
+                <SelectItem value="efficiency">Eficiencia</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
 
         <Button type="submit">Submit</Button>
       </form>

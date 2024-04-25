@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import type { Vehicle } from './columns2'
+import type { Vehicle } from './columns'
 
 // Assuming you have types defined for your tables
 
@@ -56,6 +56,7 @@ export function DataTable<TData>({ columns, data }: DataTableProps<Vehicle>) {
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
+                className="first:border-2 first:border-sky-300"
                 data-state={row.getIsSelected() && "selected"}
               >
                 {row.getVisibleCells().map((cell) => (

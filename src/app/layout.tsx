@@ -1,18 +1,13 @@
 import type { Metadata } from 'next'
-import { Inter as FontSans } from "next/font/google"
 
 import { Toaster } from "@/components/ui/toaster"
 
 import { ThemeProvider } from "@/components/theme-provider"
 import Navbar from "@/components/navbar"
+import Navbar2 from "@/components/navbar2"
 import { cn } from '@/lib/utils'
 
 import './globals.css'
-
-const fontSans = FontSans({
-  subsets: ["latin"],
-  variable: "--font-sans",
-})
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -27,9 +22,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
+        style={{fontFamily: "Inter, Roboto"}}
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable
         )}
       >
         <ThemeProvider
@@ -38,7 +33,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Navbar />
+          <Navbar2 />
           <main className='pt-24 max-w-screen-xl 2xl:mx-auto'>
             {children}
           </main>

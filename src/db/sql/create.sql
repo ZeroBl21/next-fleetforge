@@ -27,6 +27,7 @@ CREATE TABLE vehicle (
   category_id INT, 
   brand_id INT, 
   max_load_capacity DECIMAL(7, 2) NOT NULL, 
+  security_score INT, 
   model VARCHAR(50) NOT NULL, 
   FOREIGN KEY (vehicle_type_id) REFERENCES vehicle_type(id),
   FOREIGN KEY (category_id) REFERENCES vehicle_category(id),

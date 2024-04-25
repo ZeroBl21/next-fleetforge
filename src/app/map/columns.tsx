@@ -25,31 +25,35 @@ export const columns: ColumnDef<Vehicle>[] = [
     header: "Model",
   },
   {
-    accessorKey: "max_load_capacity",
-    header: "Max Load Capacity",
-  },
-  {
-    accessorKey: "vehicle_type",
-    header: "Vehicle Type",
+    accessorKey: "brand",
+    header: "Vehicle Brand",
   },
   {
     accessorKey: "category",
     header: "Vehicle Category",
   },
   {
-    accessorKey: "brand",
-    header: "Vehicle Brand",
+    accessorKey: "vehicle_type",
+    header: "Fuel Type",
   },
   {
     accessorKey: "fuel_efficiency",
     header: "Fuel Efficiency",
   },
   {
+    accessorKey: "efficiency_type", // Added efficiency_type column
+    header: "Efficiency Type",
+  },
+  {
     accessorKey: "fuel_cost",
     header: "Fuel Cost",
   },
   {
-    accessorKey: "efficiency_type", // Added efficiency_type column
-    header: "Efficiency Type",
+    accessorKey: "max_load_capacity",
+    header: "Max Load Capacity",
+  },
+  {
+    accessorKey: "security_score",
+    header: "Security Score",
   },
 ];

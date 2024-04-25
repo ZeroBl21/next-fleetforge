@@ -38,7 +38,8 @@ async function Page({ searchParams }: any) {
           roadType: route.summary.road,
           vehicleType: searchParams.vt,
           fuelType: searchParams.ft,
-          temperature: temp || 32
+          temperature: temp || 32,
+          priority: searchParams.pr 
         }
       )
     }

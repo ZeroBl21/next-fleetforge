@@ -117,6 +117,7 @@ const vehicleFuelCostSchema = z.object({
   vehicleType: z.enum(["all", "electric", "gas", "gasoline"]),
   fuelType: z.string(),
   temperature: z.number(),
+  priority: z.string().optional(),
 });
 
 async function getVehicles(weight: number, roadType: string, vehicleType: string) {
@@ -127,6 +128,7 @@ async function getVehicles(weight: number, roadType: string, vehicleType: string
       vc.name AS category,
       vb.name AS brand,
       v.max_load_capacity,
+      v.security_score,
       v.model,
       ve.efficiency_value AS fuel_efficiency
     FROM vehicle v
@@ -166,9 +168,9 @@ export async function getVehiclesWithFuelCost(params: z.infer<typeof vehicleFuel
     const result = vehicleFuelCostSchema.safeParse(params)
     if (!result.success) return;
 
-    let { weight, distance, roadType, vehicleType, fuelType, temperature } = result.data
+    let { weight, distance, roadType, vehicleType, fuelType, temperature, priority } = result.data
 
-    //Search for vehicles in the database
+    // Search for vehicles in the database
     const vehicleQuery = await getVehicles(weight, roadType, vehicleType);
 
     const fuelPriceQuery = await pool.query(`
@@ -190,6 +192,7 @@ export async function getVehiclesWithFuelCost(params: z.infer<typeof vehicleFuel
       // If there is a matching weight range, apply the adjustment
       const adjustedEfficiency = originalEfficiency * (1 - efficiencyAdjustment / 100);
 
+
       // Calculate fuel cost
       const fuelCost = (distance / adjustedEfficiency) * fuelPriceQuery.rows[0]?.price || 0;
 
@@ -199,12 +202,25 @@ export async function getVehiclesWithFuelCost(params: z.infer<typeof vehicleFuel
         category: vehicle.category,
         brand: vehicle.brand,
         max_load_capacity: vehicle.max_load_capacity,
+        security_score: vehicle.security_score,
         model: vehicle.model,
         fuel_efficiency: adjustedEfficiency.toFixed(4),
         fuel_cost: fuelCost.toFixed(4),
         efficiency_type: roadType,
       };
     });
+
+    switch (priority) {
+      case 'security':
+        vehicles.sort((a, b) => b.security_score - a.security_score);
+        break;
+      case 'efficiency':
+        vehicles.sort((a, b) => parseFloat(b.fuel_efficiency) - parseFloat(a.fuel_efficiency));
+        break;
+      default:
+        vehicles.sort((a, b) => parseFloat(a.fuel_cost) - parseFloat(b.fuel_cost));
+        break;
+    }
 
     return vehicles;
   } catch (error) {
